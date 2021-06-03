@@ -208,9 +208,8 @@ export const fieldsToUpdate = async (model) => {
 
 export const files = async ({
   name,
-  tests = true,
+  tests,
   relations,
-  javascript,
   typescript,
   ...rest
 }) => {
@@ -249,6 +248,7 @@ export const files = async ({
     templatePath: `scenarios.${extension}.template`,
     templateVars: {
       scenario: await buildScenario(model),
+      prismaTypeName: `${model}CreateArgs`,
       ...rest,
     },
   })
@@ -265,7 +265,7 @@ export const files = async ({
   //    "path/to/fileB": "<<<template>>>",
   // }
   return files.reduce((acc, [outputPath, content]) => {
-    if (javascript && !typescript) {
+    if (!typescript) {
       content = transformTSToJS(outputPath, content)
       outputPath = outputPath.replace('.ts', '.js')
     }
@@ -280,7 +280,6 @@ export const files = async ({
 export const defaults = {
   ...yargsDefaults,
   tests: {
-    default: true,
     description: 'Generate test files',
     type: 'boolean',
   },
@@ -308,11 +307,8 @@ export const builder = (yargs) => {
   })
 }
 
-export const {
-  command,
-  description,
-  handler,
-} = createYargsForComponentGeneration({
-  componentName: 'service',
-  filesFn: files,
-})
+export const { command, description, handler } =
+  createYargsForComponentGeneration({
+    componentName: 'service',
+    filesFn: files,
+  })

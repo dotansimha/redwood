@@ -23,6 +23,8 @@ const RW_BINS = {
   'api-server': 'api-server/dist/index.js',
   'rw-api-server': 'api-server/dist/index.js',
   'rw-api-build': 'core/esbuild/index.js',
+  'rw-gen': 'internal/dist/generate/generate.js',
+  'rw-gen-watch': 'internal/dist/generate/watch.js',
 }
 
 export const resolveFrameworkPath = (RW_PATH) => {
@@ -196,7 +198,7 @@ const rwtLink = async (yargs) => {
 
   await execa(
     'yarn build:link',
-    ['--dest', projectPackagesPath, ...onlyParams],
+    ['--dest', `"${projectPackagesPath}"`, ...onlyParams],
     {
       shell: true,
       stdio: 'inherit',
@@ -236,7 +238,7 @@ const rwtLink = async (yargs) => {
     // Restart build:link scripts in watchmode
     execa(
       'yarn build:link',
-      ['--dest', projectPackagesPath, '--watch', ...onlyParams],
+      ['--dest', `"${projectPackagesPath}"`, '--watch', ...onlyParams],
       {
         shell: true,
         stdio: 'inherit',
@@ -418,8 +420,7 @@ yargs
   })
   .command({
     command: 'unlink',
-    desc:
-      'Unlink your local verison of redwood, and use the one specified in package.json',
+    desc: 'Unlink your local version of redwood, and use the one specified in package.json',
     handler: rwtUnlink,
   })
   .command(

@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     tags-ignore:
-      - v**
+      - v** # We don't want this to run on release
 
 jobs:
   build:
@@ -40,7 +40,6 @@ jobs:
 
       - name: Publish to npm
         run: |
-          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
           echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > .npmrc
           ./tasks/publish-canary
         env:

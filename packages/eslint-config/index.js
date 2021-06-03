@@ -41,6 +41,9 @@ module.exports = {
         node: true,
         commonjs: true,
       },
+      globals: {
+        Promise: 'readonly',
+      },
     },
     // `web` side
     {
@@ -52,6 +55,8 @@ module.exports = {
       globals: {
         React: 'readonly',
         gql: 'readonly',
+        process: 'readonly',
+        require: 'readonly',
       },
     },
     // Test, stories, scenarios, and mock files

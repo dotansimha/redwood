@@ -9,14 +9,13 @@ import {
 const COMPONENT_SUFFIX = 'Layout'
 const REDWOOD_WEB_PATH_NAME = 'layouts'
 
-export const files = ({ name, tests = true, stories = true, ...options }) => {
-  // TODO: Replace with check from https://github.com/redwoodjs/redwood/pull/633
-  const isJavascript = options.javascript && !options.typescript
+export const files = ({ name, typescript = false, ...options }) => {
+  const extension = typescript ? '.tsx' : '.js'
   const layoutFile = templateForComponentFile({
     name,
     suffix: COMPONENT_SUFFIX,
     webPathSection: REDWOOD_WEB_PATH_NAME,
-    extension: isJavascript ? '.js' : '.tsx',
+    extension,
     generator: 'layout',
     templatePath: options.skipLink
       ? 'layout.tsx.a11yTemplate'
@@ -25,7 +24,7 @@ export const files = ({ name, tests = true, stories = true, ...options }) => {
   const testFile = templateForComponentFile({
     name,
     suffix: COMPONENT_SUFFIX,
-    extension: `.test.${isJavascript ? 'js' : 'tsx'}`,
+    extension: `.test${extension}`,
     webPathSection: REDWOOD_WEB_PATH_NAME,
     generator: 'layout',
     templatePath: 'test.tsx.template',
@@ -33,18 +32,18 @@ export const files = ({ name, tests = true, stories = true, ...options }) => {
   const storyFile = templateForComponentFile({
     name,
     suffix: COMPONENT_SUFFIX,
-    extension: `.stories.${isJavascript ? 'js' : 'tsx'}`,
+    extension: `.stories${extension}`,
     webPathSection: REDWOOD_WEB_PATH_NAME,
     generator: 'layout',
     templatePath: 'stories.tsx.template',
   })
 
   const files = [layoutFile]
-  if (stories) {
+  if (options.stories) {
     files.push(storyFile)
   }
 
-  if (tests) {
+  if (options.tests) {
     files.push(testFile)
   }
 
@@ -54,9 +53,7 @@ export const files = ({ name, tests = true, stories = true, ...options }) => {
   //    "path/to/fileB": "<<<template>>>",
   // }
   return files.reduce((acc, [outputPath, content]) => {
-    const template = isJavascript
-      ? transformTSToJS(outputPath, content)
-      : content
+    const template = typescript ? content : transformTSToJS(outputPath, content)
 
     return {
       [outputPath]: template,
@@ -65,7 +62,7 @@ export const files = ({ name, tests = true, stories = true, ...options }) => {
   }, {})
 }
 
-const builderObj = {
+const optionsObj = {
   skipLink: {
     default: false,
     description: 'Generate with skip link',
@@ -74,13 +71,9 @@ const builderObj = {
   ...yargsDefaults,
 }
 
-export const {
-  command,
-  description,
-  builder,
-  handler,
-} = createYargsForComponentGeneration({
-  componentName: 'layout',
-  filesFn: files,
-  builderObj,
-})
+export const { command, description, builder, handler } =
+  createYargsForComponentGeneration({
+    componentName: 'layout',
+    filesFn: files,
+    optionsObj,
+  })
